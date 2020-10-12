@@ -48,14 +48,14 @@ HS300_2009 = [
 
 CONFIG = {
     "base": {
-        "start_date": "20090901",
+        "start_date": "20180901",
         "end_date": "20190901",
         "accounts": {
             "STOCK": 10e8
         }
     },
     "extra": {
-        "log_level": "error"
+        "log_level": "verbose"
     },
     "mod": {
         "sys_analyser": {
