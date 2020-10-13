@@ -59,11 +59,16 @@ CONFIG = {
     },
     "mod": {
         "sys_analyser": {
-            "enabled": "false"
-        }
+            "enabled": True,
+            # "report_save_path": ".",
+            "plot": True,
+            "enabled": True,
+            # "matching_type": "last"
+        },
     }
 }
 
+from rqalpha import run_func
 
 def init(context):
     random.seed = 1
@@ -85,7 +90,6 @@ def handle_bar(context, _):
 
 
 if __name__ == "__main__":
-    from rqalpha import run_func
     run_func(init=init, handle_bar=handle_bar, config=CONFIG)
 
     """
