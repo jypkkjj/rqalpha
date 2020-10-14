@@ -1,10 +1,4 @@
-
-
-from rqalpha import run_func
-
-
 # 参考 https://blog.ricequant.com/2020/08/07/dual-thrust-%e4%ba%a4%e6%98%93%e7%ad%96%e7%95%a5/
-
 def init(context):
     context.stocks = ['中证500']
     update_universe(context.stocks)
@@ -77,7 +71,9 @@ def handle_bar(context, bar_dict):
 CONFIG = {
     "base": {
         "start_date": "20180901",
-        "end_date": "20190901",
+        "end_date": "20200901",
+        "frequency": "1d",
+        # "benchmark": "000300.XSHG",
         "accounts": {
             "STOCK": 10e8
         }
@@ -91,6 +87,7 @@ CONFIG = {
             # "report_save_path": ".",
             "plot": True,
             "enabled": True,
+            "benchmark": "000300.XSHG"
             # "matching_type": "last"
         },
     }
@@ -98,4 +95,5 @@ CONFIG = {
 
 
 if __name__ == "__main__":
+    from rqalpha import run_func
     run_func(init=init, handle_bar=handle_bar, config=CONFIG)
