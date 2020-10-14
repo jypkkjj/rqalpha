@@ -13,24 +13,31 @@ def rebalance(context, bar_dict):
         order_target_percent(stock, 0)
 
 
-__config__ = {
+CONFIG = {
     "base": {
-        "start_date": "2008-07-01",
-        "end_date": "2017-01-01",
+        "start_date": "20180901",
+        "end_date": "20200901",
         "frequency": "1d",
-        "matching_type": "current_bar",
-        "benchmark": "000001.XSHE",
+        # "benchmark": "000300.XSHG",
         "accounts": {
-            "stock": 100000
+            "STOCK": 10e8
         }
     },
     "extra": {
-        "log_level": "error",
+        "log_level": "verbose"
     },
     "mod": {
-        "sys_progress": {
+        "sys_analyser": {
             "enabled": True,
-            "show": True,
+            # "report_save_path": ".",
+            "plot": True,
+            "enabled": True,
+            "benchmark": "000300.XSHG"
+            # "matching_type": "last"
         },
-    },
+    }
 }
+
+if __name__ == "__main__":
+    from rqalpha import run_func
+    run_func(init=init, config=CONFIG)

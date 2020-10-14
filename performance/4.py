@@ -44,6 +44,7 @@ def handle_bar(context, bar_dict):
 def before_trading(context):
     num_stocks = 20
 
+    # 替代 get_factor， get_pit_financial_ex
     # 删选股票
     fundamental_df = get_fundamentals(
         query(

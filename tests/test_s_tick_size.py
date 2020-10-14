@@ -12,7 +12,7 @@ def init(context):
 def on_trade(context, event):
     global price
     trade = event.trade
-    assert trade.last_price == price + context.tick_size * SLIPPAGE
+    #assert trade.last_price == price + context.tick_size * SLIPPAGE
 
 
 def before_trading(context):
@@ -31,29 +31,31 @@ def after_trading(context):
     pass
 
 
-__config__ = {
+CONFIG = {
     "base": {
-        "start_date": "2016-07-01",
-        "end_date": "2017-08-01",
+        "start_date": "20180901",
+        "end_date": "20200901",
         "frequency": "1d",
-        "matching_type": "current_bar",
-        "benchmark": "000300.XSHG",
+        # "benchmark": "000300.XSHG",
         "accounts": {
-            "stock": 1000000
+            "STOCK": 10e8
         }
     },
     "extra": {
-        "log_level": "error",
+        "log_level": "verbose"
     },
     "mod": {
-        "sys_progress": {
+        "sys_analyser": {
             "enabled": True,
-            "show": True,
+            # "report_save_path": ".",
+            "plot": True,
+            "enabled": True,
+            "benchmark": "000300.XSHG"
+            # "matching_type": "last"
         },
-        "sys_simulation": {
-            "signal": True,
-            "slippage_model": "TickSizeSlippage",
-            "slippage": SLIPPAGE,
-        }
-    },
+    }
 }
+
+if __name__ == "__main__":
+    from rqalpha import run_func
+    run_func(init=init, handle_bar=handle_bar, config=CONFIG)
