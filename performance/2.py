@@ -3,129 +3,126 @@
 https://blog.ricequant.com/2020/08/07/%e6%b5%b7%e9%be%9f%e4%ba%a4%e6%98%93%e7%b3%bb%e7%bb%9f%e7%9a%84python%e5%ae%8c%e5%85%a8%e7%89%88/
 
 """
-
 import numpy as np
 import talib
 import math
 
 
-def getExtremem(arrayHighPriceResult, arrayLowPriceResult):
-    np_arrayHighPriceResult = np.array(arrayHighPriceResult[:-1])
-    np_arrayLowPriceResult = np.array(arrayLowPriceResult[:-1])
-    maxResult = np_arrayHighPriceResult.max()
-    minResult = np_arrayLowPriceResult.min()
-    return [maxResult, minResult]
+def get_extreme(array_high_price_result, array_low_price_result):
+    np_array_high_price_result = np.array(array_high_price_result[:-1])
+    np_array_low_price_result = np.array(array_low_price_result[:-1])
+    max_result = np_array_high_price_result.max()
+    min_result = np_array_low_price_result.min()
+    return [max_result, min_result]
 
 
-def getAtrAndUnit(atrArrayResult, atrLengthResult, portfolioValueResult):
-    atr = atrArrayResult[atrLengthResult - 1]
-    unit = math.floor(portfolioValueResult * .01 / atr)
+def get_atr_and_unit( atr_array_result,  atr_length_result, portfolio_value_result):
+    atr =  atr_array_result[ atr_length_result-1]
+    unit = math.floor(portfolio_value_result * .01 / atr)
     return [atr, unit]
 
 
-def getStopPrice(firstOpenPriceResult, units_hold_result, atrResult):
-    stopPrice = firstOpenPriceResult - 2 * atrResult + (units_hold_result - 1) * 0.5 * atrResult
-    return stopPrice
+def get_stop_price(first_open_price_result, units_hold_result, atr_result):
+    stop_price = first_open_price_result - 2 * atr_result \
+                 + (units_hold_result - 1) * 0.5 * atr_result
+    return stop_price
 
 
 def init(context):
-    context.tradedayNum = 0
+    context.trade_day_num = 0
     context.unit = 0
     context.atr = 0
-    context.tradingSignal = 'start'
-    context.preTradingSignal = ''
+    context.trading_signal = 'start'
+    context.pre_trading_signal = ''
     context.units_hold_max = 4
     context.units_hold = 0
     context.quantity = 0
     context.max_add = 0
-    context.firstOpenPrice = 0
-    context.s = 'CSI300.INDX'
-    update_universe([context.s])
-    context.openObserveTime = 55;
-    context.closeObserveTime = 20;
-    context.atrTime = 20;
+    context.first_open_price = 0
+    context.s = '000300.XSHG'
+    context.open_observe_time = 55
+    context.close_observe_time = 20
+    context.atr_time = 20
 
 
 def handle_bar(context, bar_dict):
-    portfolioValue = context.portfolio.portfolio_value
-    highPrice = history_bars(context.s, context.openObserveTime + 1, '1d', 'high')
-    lowPriceForAtr = history_bars(context.s, context.openObserveTime + 1, '1d', 'low')
-    lowPriceForExtremem = history_bars(context.s, context.closeObserveTime + 1, '1d', 'low')
-    closePrice = history_bars(context.s, context.openObserveTime + 2, '1d', 'close')
-    closePriceForAtr = closePrice[:-1]
+    portfolio_value = context.portfolio.portfolio_value
+    high_price = history_bars(context.s, context.open_observe_time+1, '1d', 'high')
+    low_price_for_atr = history_bars(context.s, context.open_observe_time+1, '1d', 'low')
+    low_price_for_extreme = history_bars(context.s, context.close_observe_time+1, '1d', 'low')
+    close_price = history_bars(context.s, context.open_observe_time+2, '1d', 'close')
+    close_price_for_atr = close_price[:-1]
 
-    atrArray = talib.ATR(highPrice, lowPriceForAtr, closePriceForAtr, timeperiod=context.atrTime)
+    atr_array = talib.ATR(high_price, low_price_for_atr, close_price_for_atr, timeperiod=context.atr_time)
 
-    maxx = getExtremem(highPrice, lowPriceForExtremem)[0]
-    minn = getExtremem(highPrice, lowPriceForExtremem)[1]
-    atr = atrArray[-2]
+    maxx = get_extreme(high_price, low_price_for_extreme)[0]
+    minn = get_extreme(high_price, low_price_for_extreme)[1]
+    atr = atr_array[-2]
 
-    if (context.tradingSignal != 'start'):
-        if (context.units_hold != 0):
-            context.max_add += 0.5 * getAtrAndUnit(atrArray, atrArray.size, portfolioValue)[0]
+    if context.trading_signal != 'start':
+        if context.units_hold != 0:
+            context.max_add += 0.5 * get_atr_and_unit(atr_array, atr_array.size, portfolio_value)[0]
     else:
         context.max_add = bar_dict[context.s].last
 
-    curPosition = context.portfolio.positions[context.s].quantity
-    availableCash = context.portfolio.cash
-    marketValue = context.portfolio.market_value
+    cur_position = get_position(context.s).quantity
+    available_cash = context.portfolio.cash
+    market_value = context.portfolio.market_value
 
-    if (curPosition > 0 and bar_dict[context.s].last < minn):
-        context.tradingSignal = 'exit'
+    if (cur_position > 0 and
+            bar_dict[context.s].last < get_stop_price(context.first_open_price, context.units_hold, atr)):
+        context.trading_signal = 'stop'
     else:
-        if (curPosition > 0 and bar_dict[context.s].last < getStopPrice(context.firstOpenPrice, context.units_hold,
-                                                                        atr)):
-            context.tradingSignal = 'stop'
+        if cur_position > 0 and bar_dict[context.s].last < minn:
+            context.trading_signal = 'exit'
         else:
-            if (bar_dict[
-                context.s].last > context.max_add and context.units_hold != 0 and context.units_hold < context.units_hold_max and availableCash >
-                    bar_dict[context.s].last * context.unit):
-                context.tradingSignal = 'entry_add'
+            if (bar_dict[context.s].last > context.max_add and context.units_hold != 0 and
+                    context.units_hold < context.units_hold_max and
+                    available_cash > bar_dict[context.s].last*context.unit):
+                context.trading_signal = 'entry_add'
             else:
-                if (bar_dict[context.s].last > maxx and context.units_hold == 0):
+                if bar_dict[context.s].last > maxx and context.units_hold == 0:
                     context.max_add = bar_dict[context.s].last
-                    context.tradingSignal = 'entry'
+                    context.trading_signal = 'entry'
 
-    atr = getAtrAndUnit(atrArray, atrArray.size, portfolioValue)[0]
-    if context.tradedayNum % 5 == 0:
-        context.unit = getAtrAndUnit(atrArray, atrArray.size, portfolioValue)[1]
-    context.tradedayNum += 1
+    atr = get_atr_and_unit(atr_array, atr_array.size, portfolio_value)[0]
+    if context.trade_day_num % 5 == 0:
+        context.unit = get_atr_and_unit(atr_array, atr_array.size, portfolio_value)[1]
+    context.trade_day_num += 1
     context.quantity = context.unit
 
-    if (context.tradingSignal != context.preTradingSignal or (
-            context.units_hold < context.units_hold_max and context.units_hold > 1) or context.tradingSignal == 'stop'):
-
-        if context.tradingSignal == 'entry':
+    if (context.trading_signal != context.pre_trading_signal or
+            (context.units_hold < context.units_hold_max and context.units_hold > 1) or
+            context.trading_signal == 'stop'):
+        if context.trading_signal == 'entry':
             context.quantity = context.unit
-            if availableCash > bar_dict[context.s].last * context.quantity:
+            if available_cash > bar_dict[context.s].last*context.quantity:
                 order_shares(context.s, context.quantity)
-                context.firstOpenPrice = bar_dict[context.s].last
+                context.first_open_price = bar_dict[context.s].last
                 context.units_hold = 1
 
-        if context.tradingSignal == 'entry_add':
+        if context.trading_signal == 'entry_add':
             context.quantity = context.unit
             order_shares(context.s, context.quantity)
             context.units_hold += 1
 
-        if context.tradingSignal == 'stop':
-            if (context.units_hold > 0):
+        if context.trading_signal == 'stop':
+            if context.units_hold > 0:
                 order_shares(context.s, -context.quantity)
                 context.units_hold -= 1
 
-        if context.tradingSignal == 'exit':
-            if curPosition > 0:
-                order_shares(context.s, -curPosition)
+        if context.trading_signal == 'exit':
+            if cur_position > 0:
+                order_shares(context.s, -cur_position)
                 context.units_hold = 0
 
-    context.preTradingSignal = context.tradingSignal
-
+    context.pre_trading_signal = context.trading_signal
 
 CONFIG = {
     "base": {
         "start_date": "20180901",
         "end_date": "20200901",
         "frequency": "1d",
-        #"benchmark": "000300.XSHG",
         "accounts": {
             "STOCK": 1000000
         }
