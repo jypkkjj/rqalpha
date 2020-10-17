@@ -22,3 +22,4 @@ rqalpha_test_coverage_report/
 .tmp.pkl
 .env
 env/
+venv/
