@@ -28,10 +28,18 @@ https://echenshe.com/share/quant.html
 
 # 学习资料
 1. https://app.dataquest.io/dashboard
-2. 
+2. 聚宽量化学堂：https://www.joinquant.com/study#python
+3.
 
 
 # 项目
 1. 聚宽数据下载服务：https://github.com/silent494529371/joinquant-data
 2. 股票&策略： https://github.com/javaniuniu/stockthird
-3. 
+3. 开源项目Rqalpha的改造: https://github.com/DingTobest/Rqalpha-myquant-learning
+4. 数据测试demo: https://github.com/DingTobest/fdata_notebook.git
+5. 个人金融投资数据计算服务: https://github.com/DingTobest/SmartCloud
+6. 量化研究平台: https://github.com/quantOS-org/JAQS
+7. 量化策略： https://github.com/JL233/myquant
+8. 策略: https://github.com/yigo3000/-
+9. 聚宽新手指南：https://www.joinquant.com/view/community/detail/7e4989804f4d3cd12532cafefeea1bcb?type=1
+
