@@ -147,7 +147,7 @@ def change_positions(new_state, context):
         g.state = 'even'
 CONFIG = {
     "base": {
-        "start_date": "20180101",
+        "start_date": "20190101",
         "end_date": "20200901",
         "frequency": "1d",
         # "benchmark": "000300.XSHG",
@@ -173,7 +173,6 @@ CONFIG = {
 
 if __name__ == "__main__":
     from jqdatasdk import *
-    auth('13918852005','960312Lsc')
-
+    auth('18332556055','cjl011235813')
     from rqalpha import run_func
     run_func(init=init, handle_bar=handle_bar, config=CONFIG)
